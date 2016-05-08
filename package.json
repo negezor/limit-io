@@ -1,0 +1,25 @@
+{
+  "name": "limit-io",
+  "version": "1.0.0",
+  "description": "Limiter request",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UltraShock98/limit-io.git"
+  },
+  "keywords": [
+    "rate",
+    "limiter",
+    "io",
+    "node"
+  ],
+  "author": "vk.com/id195624402",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UltraShock98/limit-io/issues"
+  },
+  "homepage": "https://github.com/UltraShock98/limit-io#readme"
+}
