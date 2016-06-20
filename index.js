@@ -40,7 +40,7 @@ var intervalDate = {
 			var num = parseInt(split[0]);
 
 			if (Number.isNaN(num)) {
-				num = interval.getDate(split[0]);
+				num = intervalDate.getDate(split[0]);
 			}
 
 			interval += num;
