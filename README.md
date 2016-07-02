@@ -8,12 +8,16 @@
 * hour или hr - часы
 * minute или min - минуты
 * second или sec - секунды
+
+А так же можно дописать тип режима их два
+* timeout - таймер будет сбрасываться по достижению времени
+* fire - будет вызывать когда хватает amount, по умолчанию
 ```javascript
 'use strict';
 
 var io = require('limit-io');
 var limit = new io(string|integer interval,integer amount);
-// var limit = new io('1 day 5 hour 10 min 30 sec',150);
+// var limit = new io('1 day 5 hour 10 min 30 sec timeout',150);
 ```
 Кол-во доступных запросов, возвращает float или integer
 ```javascript
@@ -72,12 +76,16 @@ Initialization, the constructor can be passed interval integer or string value, 
 * Hour, or hr - hours
 * Minute or min - min
 * Second or sec - seconds
+
+And also we can add the type of two modes
+* timeout - the timer will reset the time to achieve
+* fire - will call when enough amount, default
 ```javascript
 'use strict';
 
 var io = require('limit-io');
 var limit = new io(string|integer interval,integer amount);
-// var limit = new io('1 day 5 hour 10 min 30 sec',150);
+// var limit = new io('1 day 5 hour 10 min 30 sec timeout',150);
 ```
 Number of available request, returns a float or integer
 ```javascript
