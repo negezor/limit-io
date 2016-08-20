@@ -1,177 +1,230 @@
 'use strict';
 
-var intervalDate = {
-	date: {
-		second: 1,
-		minute: 60,
-		hour: 60 * 60,
-		day: 60 * 60 * 24
-	},
-	init: function(){
-		this.date.default = this.date.second;
-		this.date.sec = this.date.second;
-		this.date.min = this.date.minute;
-		this.date.hr = this.date.hour;
-	},
-	getDate: function(type){
-		return 1000 * (this.date[type] || this.date['default']);
-	},
-	parse: function(date){
-		if (!date) {
-			return this.getDate('minute');
-		}
-
-		if (typeof date === 'number' || date instanceof Number) {
-			return date;
-		}
-
-		date = date.toString().trim().replace(/[ ]{2,}/g,' ');
-
-		var
-		split = date.split(' '),
-		interval = 0;
-
-		if (split.length > 2) {
-			split.reverse();
-			var length = split.length/2;
-
-			for (var i = 0; i < length; ++i) {
-				var
-				num = split.pop(),
-				key = split.pop();
-
-				interval += this.getDate(key) * num;
-			}
-
-			return interval;
-		} else if (split[1]) {
-			interval += this.getDate(split[1]) * parseInt(split[0]);
-		} else {
-			var num = parseInt(split[0]);
-
-			if (Number.isNaN(num)) {
-				num = intervalDate.getDate(split[0]);
-			}
-
-			interval += num;
-		}
-
-		return interval;
-	}
-};
-
-intervalDate.init();
-
-var actionType = /(fire|timeout)/ig;
-
-module.exports = function(time,limit){
-	this.amount = this.limit = parseInt(limit || 1);
-	this.last = Date.now();
-	this.fire = true;
-
-	if (actionType.test(time)) {
-		this.fire = time.match(actionType)[0].toLowerCase() === 'fire';
-		time = time.replace(actionType,' ');
-	}
-
-	this.interval = intervalDate.parse(time);
-
-	if (this.fire === false) {
-		this._timeout;
-
-		/**
-		 * Возвращает кол-во оставшихся запросов
-		 *
-		 * @return float
-		 */
-		this.count = () => {
-			return this.amount;
+const timeParser = new (class TimeParser {
+	/**
+	 * Конструктор
+	 */
+	constructor () {
+		this.time = {
+			second: 1,
+			minute: 60,
+			hour: 60 * 60,
+			day: 60 * 60 * 24
 		};
 
-		/**
-		 * Убирает нужное кол-во запросов
-		 *
-		 * @param integer count
-		 *
-		 * @return boolean
-		 */
-		this.accept = (count) => {
-			this.last = Date.now();
+		/* Алиасы */
+		this.time.default = this.time.second;
+		this.time.sec = this.time.second;
+		this.time.min = this.time.minute;
+		this.time.hr = this.time.hour;
 
-			if (count > this.amount) {
-				return false;
-			}
-
-			if (!this._timeout) {
-				this._timeout = setTimeout(this.reset,this.interval);
-			}
-
-			this.amount -= count;
-
-			return true;
-		};
-
-		/**
-		 * Сбрасывает кол-во доступных запросов
-		 *
-		 * @return integer
-		 */
-		this.reset = () => {
-			clearTimeout(this._timeout);
-			this._timeout = null;
-
-			return this.amount = this.limit;
-		};
-
-		return this;
+		this.replaceSpace = /[ ]{2,}/g;
 	}
 
 	/**
-	 * Возвращает кол-во оставшихся запросов
+	 * Возвращает милисекунды
+	 *
+	 * @param string name
+	 *
+	 * @return integer
+	 */
+	getTime (name) {
+		return 1000 * (this.time[name] || this.time.default);
+	}
+
+	/**
+	 * Парсирит строку со временем
+	 *
+	 * @param mixed time
+	 *
+	 * @return integer
+	 */
+	parse (time) {
+		if (!time) {
+			return this.getTime('default');
+		}
+
+		if (typeof time === 'number') {
+			return time;
+		}
+
+		var divided = this._sanitize(time).split(' ');
+
+		if (divided.length > 1) {
+			var length = divided.length / 2;
+
+			time = 0;
+
+			for (var i = 0; i < length; ++i) {
+				time += this.getTime(divided.pop()) * parseInt(divided.pop());
+			}
+
+			return time;
+		}
+
+		time = parseInt(divided[0]);
+
+		if (!Number.isNaN(time)) {
+			return time;
+		}
+
+		return this.getTime(divided[0]);
+	}
+
+	/**
+	 * Чистик строку
+	 *
+	 * @param string str
+	 *
+	 * @return string
+	 */
+	_sanitize (str) {
+		return str.trim().replace(this.replaceSpace);
+	}
+});
+
+class Limiter {
+	/**
+	 * Конструктор
+	 *
+	 * @param mixed   time
+	 * @param integer amount
+	 */
+	constructor (time,amount) {
+		this.limit = this.amount = parseInt(amount || 0);
+		this.time = timeParser.parse(time);
+
+		this._updateLast();
+	}
+
+	/**
+	 * Проверяет хватает ли запрсов для вызова
+	 *
+	 * @param integer amount
+	 *
+	 * @return boolean
+	 */
+	accept (amount) {
+		if (this.getAmount() < amount) {
+			return false;
+		}
+
+		this.amount -= amount;
+
+		return true;
+	}
+
+	/**
+	 * Сбрасывает кол-во доступных вызовов
+	 */
+	reset () {
+		this._updateLast();
+
+		this.amount = this.limit;
+	}
+
+	/**
+	 * Возвращает кол-во доступных вызовов
+	 *
+	 * @return integer
+	 */
+	getAmount () {
+		this._updateLast();
+
+		return this.amount;
+	}
+
+	/**
+	 * Возвращает ограничение на кол-во вызовов
+	 *
+	 * @return integer
+	 */
+	getLimit () {
+		return this.limit;
+	}
+
+	/**
+	 * Возвращает время интервала
+	 *
+	 * @return integer
+	 */
+	getTime () {
+		return this.time;
+	}
+
+	/**
+	 * Возвращает время последнего вызова
+	 *
+	 * @return integer
+	 */
+	getLast () {
+		return this.last;
+	}
+
+	/**
+	 * Обновляет время последнего вызова
+	 */
+	_updateLast () {
+		this.last = Date.now();
+	}
+};
+
+exports.TimeoutLimiter = class TimeoutLimiter extends Limiter {
+	/**
+	 * Конструктор
+	 *
+	 * @param mixed   time
+	 * @param integer amount
+	 */
+	constructor (time,amount) {
+		super(time,amount);
+
+		this._timeout = null;
+	}
+
+	/**
+	 * Проверяет хватает ли запрсов для вызова
+	 *
+	 * @param integer amount
+	 *
+	 * @return boolean
+	 */
+	accept (amount) {
+		var isAccept = super.accept(amount);
+
+		if (isAccept && !this._timeout) {
+			this._timeout = setTimeout(this.reset.bind(this),this.time);
+		}
+
+		return isAccept;
+	}
+
+	/**
+	 * Сбрасывает кол-во доступных вызовов
+	 */
+	reset () {
+		super.reset();
+
+		clearTimeout(this._timeout);
+		this._timeout = null;
+	}
+};
+
+exports.FireLimiter = class FireLimiter extends Limiter {
+	/**
+	 * Возвращает кол-во доступных запросов
 	 *
 	 * @return float
 	 */
-	this.count = () => {
+	getAmount () {
 		var now = Date.now();
 
 		var difference = Math.max(now - this.last,0);
-		difference *= this.limit/this.interval;
+		difference *= this.limit/this.time;
 		difference += this.amount;
 
 		this.last = now;
 
 		return this.amount = Math.min(difference,this.limit);
-	};
-
-	/**
-	 * Убирает нужное кол-во запросов
-	 *
-	 * @param integer count
-	 *
-	 * @return boolean
-	 */
-	this.accept = (count) => {
-		if (count > this.limit) {
-			return false;
-		}
-
-		this.count();
-
-		if (count > this.amount) {
-			return false;
-		}
-
-		this.amount -= count;
-
-		return true;
-	};
-
-	/**
-	 * Сбрасывает кол-во доступных запросов
-	 *
-	 * @return integer
-	 */
-	this.reset = () => {
-		return this.amount = this.limit;
-	};
+	}
 };

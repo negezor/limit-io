@@ -1,25 +1,28 @@
 {
-  "name": "limit-io",
-  "version": "1.0.2",
-  "description": "Limiter request",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/UltraShock98/limit-io.git"
-  },
-  "keywords": [
-    "rate",
-    "limiter",
-    "io",
-    "node"
-  ],
-  "author": "vk.com/id195624402",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/UltraShock98/limit-io/issues"
-  },
-  "homepage": "https://github.com/UltraShock98/limit-io#readme"
+    "name": "limit-io",
+    "version": "1.0.3",
+    "description": "Simple queries limiter",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/negezor/limit-io.git"
+    },
+    "keywords": [
+        "rate",
+        "limiter",
+        "io",
+        "node",
+        "js",
+        "simple",
+        "queries"
+    ],
+    "author": "https://vk.com/id195624402",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/negezor/limit-io/issues"
+    },
+    "homepage": "https://github.com/negezor/limit-io#readme"
 }

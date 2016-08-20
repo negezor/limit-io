@@ -1,136 +1,98 @@
-# limit-io
-###Russian
-Ограничитель запросов
+[![Logo vk-io](https://github.com/negezor/limit-io/blob/master/Logo.png?raw=true)](https://www.npmjs.com/package/limit-io)
 
-## Использование
-Инициализация, в конструктор можно передать значение interval integer или string, пример: 1 min 15 sec или (1000 * 60) + (1000 * 15)
-* day - дни
-* hour или hr - часы
-* minute или min - минуты
-* second или sec - секунды
+# LIMIT-IO
 
-А так же можно дописать тип режима их два
-* timeout - таймер будет сбрасываться по достижению времени
-* fire - будет вызывать когда хватает amount, по умолчанию
+Удобный инструмент для работы с ограничением запросов
+
+Где он пригодится? Например ограничение запросов на API или 
+
+## Инициализация / Начало работы
+### Установка модуля
+```shell
+npm install limit-io --save
+```
+### Инициализация экземпляров
+Модуль содержит классы идентичных друг другу, отличаясь только контролем ограничений
+
 ```javascript
 'use strict';
 
-var io = require('limit-io');
-var limit = new io(string|integer interval,integer amount);
-// var limit = new io('1 day 5 hour 10 min 30 sec timeout',150);
-```
-Кол-во доступных запросов, возвращает float или integer
-```javascript
-limit.count();
-```
-Убирает доступный запрос, возвращает boolean
-```javascript
-if (limit.accept(integer count)) {
-	// Получилось
-} else {
-	// Не получилось
-}
-```
-Обновляет кол-во доступных запросов, возвращает integer кол-во доступных запросов
-```javascript
-limit.reset();
-```
-Простой пример запроса
-```javascript
-var limit = new (require('limit-io'))('15 sec',2);
+const Limiter = require('limit-io');
 
-var last = 0;
-
-var idInterval = setInterval(() => {
-	if (limit.accept(1)) {
-		console.log('Yes,',last,'second');
-		last = 0;
-	} else {
-		console.log('No, 2 second');
-		last += 2;
-	}
-},1000 * 2);
-
-setTimeout(() => {
-	clearInterval(idInterval);
-},1000 * 20);
-
-// Console:
-// Yes, 0 second
-// Yes, 0 second
-// No, 2 second
-// No, 2 second
-// Yes, 4 second
-// No, 2 second
-// No, 2 second
-// No, 2 second
-// Yes, 6 second
+const limit = new Limiter.FireLimiter('1 day',100);
 ```
-# limit-io
-###English
-Limiter request
 
-## Using
-Initialization, the constructor can be passed interval integer or string value, for example: 1 min 15 sec, or (1000 * 60) + (1000 * 15)
-* Day - days
-* Hour, or hr - hours
-* Minute or min - min
-* Second or sec - seconds
+Базовый конструктор классов
 
-And also we can add the type of two modes
-* timeout - the timer will reset the time to achieve
-* fire - will call when enough amount, default
+##### Первый аргумент
+Тип: `string` или `integer` в миллисекундах
+
+Чаще всего будет передоваться строка, формат записи `integer string`, структура может повторятся много раз прописывая её через пробел
+
+Доступные константы
+* `day` - дни
+* `hour` или `hr` - часы
+* `minute` или `min` - минуты
+* `second` или `sec` - секунды
+
 ```javascript
-'use strict';
+const limit = new Limiter.TimeoutLimiter('2 day 4 hour 47 min 33 sec',1000);
+```
 
-var io = require('limit-io');
-var limit = new io(string|integer interval,integer amount);
-// var limit = new io('1 day 5 hour 10 min 30 sec timeout',150);
-```
-Number of available request, returns a float or integer
+##### Второй аргумент
+Тип: `integer`
+
+Сколько доступно запросов за период времени
+
+### Список классов
+На данный момент включает в себя классы
+
+#### TimeoutLimiter
+Сбрасывает ограничение при истичения заданного интервала
+
+Использует стандартный конструктор описанный выше
+
+#### FireLimiter
+Пропускает как только наберётся нужно количество запросов
+
+Использует стандартный конструктор описанный выше
+
+#### Есть ли доступные запросы
+
+##### Первый аргумент
+Тип: `integer` или `float`
+
+Проверяет наличие запросов
+
 ```javascript
-limit.count();
+limit.accept(<Количество>); // -> boolean
 ```
-Removes available request returns a boolean
-```javascript
-if (limit.accept(integer count)) {
-	// Happened
-} else {
-	// Did not work out
-}
-```
-Updates the number of available request, returns the integer number of available request
+#### Сброс достпных запрсов
 ```javascript
 limit.reset();
 ```
-A simple example of a query
+
+### Геттеры
+#### getAmount
+Возвращает количество доступных запросов
 ```javascript
-var limit = new (require('limit-io'))('15 sec',2);
+limit.getAmount(); // -> integer или float
+```
 
-var last = 0;
+#### getLimit
+Возвращает количество ограничений запрсов
+```javascript
+limit.getLimit(); // -> integer
+```
 
-var idInterval = setInterval(() => {
-	if (limit.accept(1)) {
-		console.log('Yes,',last,'second');
-		last = 0;
-	} else {
-		console.log('No, 2 second');
-		last += 2;
-	}
-},1000 * 2);
+#### getTime
+Возвращает время в миллисекундах  переданных в конструктор
+```javascript
+limit.getTime(); // -> integer
+```
 
-setTimeout(() => {
-	clearInterval(idInterval);
-},1000 * 20);
-
-// Console:
-// Yes, 0 second
-// Yes, 0 second
-// No, 2 second
-// No, 2 second
-// Yes, 4 second
-// No, 2 second
-// No, 2 second
-// No, 2 second
-// Yes, 6 second
+#### getLast
+Возвращает время в миллисекундах последнего запроса
+```javascript
+limit.getLast(); // -> integer
 ```
