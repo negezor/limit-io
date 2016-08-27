@@ -96,3 +96,9 @@ limit.getTime(); // -> integer
 ```javascript
 limit.getLast(); // -> integer
 ```
+
+#### getRecoveryTime
+Возвращает время в миллисекундах для сброса интервала
+```javascript
+limit.getRecoveryTime(); // -> integer
+```

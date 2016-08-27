@@ -180,6 +180,7 @@ exports.TimeoutLimiter = class TimeoutLimiter extends Limiter {
 		super(time,amount);
 
 		this._timeout = null;
+		this._recovery = null;
 	}
 
 	/**
@@ -194,6 +195,8 @@ exports.TimeoutLimiter = class TimeoutLimiter extends Limiter {
 
 		if (isAccept && !this._timeout) {
 			this._timeout = setTimeout(this.reset.bind(this),this.time);
+
+			this._recovery = this.time + Date.now();
 		}
 
 		return isAccept;
@@ -206,7 +209,28 @@ exports.TimeoutLimiter = class TimeoutLimiter extends Limiter {
 		super.reset();
 
 		clearTimeout(this._timeout);
+
 		this._timeout = null;
+		this._recovery = null;
+	}
+
+	/**
+	 * Возвращает время в милисекундах для востановления
+	 *
+	 * @return integer
+	 */
+	getRecoveryTime () {
+		if (this._recovery === null) {
+			return 0;
+		}
+
+		var recovery = this._recovery - Date.now();
+
+		if (recovery <= 0) {
+			return 0;
+		}
+
+		return Math.floor(recovery);
 	}
 };
 
@@ -226,5 +250,23 @@ exports.FireLimiter = class FireLimiter extends Limiter {
 		this.last = now;
 
 		return this.amount = Math.min(difference,this.limit);
+	}
+
+	/**
+	 * Возвращает время в милисекундах для востановления
+	 *
+	 * @return integer
+	 */
+	getRecoveryTime () {
+		var recovery = this.time * this.getAmount();
+		recovery /= this.limit;
+
+		recovery = this.time - recovery;
+
+		if (recovery <= 0) {
+			return 0;
+		}
+
+		return Math.floor(recovery);
 	}
 };
