@@ -1,104 +1,105 @@
-[![Logo vk-io](https://github.com/negezor/limit-io/blob/master/Logo.png?raw=true)](https://www.npmjs.com/package/limit-io)
+<p align="center"><img src="https://raw.githubusercontent.com/negezor/limit-io/master/logo.svg?sanitize=true"></p>
+<p align="center">
+<a href="https://www.npmjs.com/package/limit-io"><img src="https://img.shields.io/npm/v/limit-io.svg?style=flat-square" alt="NPM version"></a>
+<a href="https://travis-ci.org/negezor/limit-io"><img src="https://img.shields.io/travis/negezor/limit-io.svg?style=flat-square" alt="Build Status"></a>
+<a href="https://www.npmjs.com/package/limit-io"><img src="https://img.shields.io/npm/dt/limit-io.svg?style=flat-square" alt="NPM downloads"></a>
+<a href="https://www.codacy.com/app/negezor/limit-io"><img src="https://img.shields.io/codacy/grade/25ee36d46e6e498981a74f8b0653aacc.svg?style=flat-square" alt="Code quality"></a>
+</p>
 
-# LIMIT-IO
+LIMIT-IO - This is a simple query limiter based on memory storage
 
-Удобный инструмент для работы с ограничением запросов
+## Features
+- Two operating modes
+- Support ESM
+- Simple
 
-Где он пригодится? Например ограничение запросов на API
+## Installation
+> **[Node.js](https://nodejs.org/) 8.0.0 or newer is required**  
 
-## Инициализация / Начало работы
-### Установка модуля
+### Yarn
+Recommended, auto assembly
 ```shell
-npm install limit-io --save
-```
-### Инициализация экземпляров
-Модуль содержит классы идентичных друг другу, отличаясь только контролем ограничений
-
-```javascript
-'use strict';
-
-const Limiter = require('limit-io');
-
-const limit = new Limiter.FireLimiter('1 day',100);
+$ yarn add limit-io
 ```
 
-Базовый конструктор классов
-
-##### Первый аргумент
-Тип: `string` или `integer` в миллисекундах
-
-Чаще всего будет передоваться строка, формат записи `integer string`, структура может повторятся много раз прописывая её через пробел
-
-Доступные константы
-* `day` - дни
-* `hour` или `hr` - часы
-* `minute` или `min` - минуты
-* `second` или `sec` - секунды
-
-```javascript
-const limit = new Limiter.TimeoutLimiter('2 day 4 hour 47 min 33 sec',1000);
+### NPM
+```shell
+$ npm i limit-io
 ```
 
-##### Второй аргумент
-Тип: `integer`
+## API Reference
 
-Сколько доступно запросов за период времени
+* [Limiter](#Limiter)
+	* [FireLimiter](#FireLimiter)
+	* [TimeoutLimiter](#TimeoutLimiter)
 
-### Список классов
-На данный момент включает в себя классы
+## Limiter
 
-#### TimeoutLimiter
-Сбрасывает ограничение при истичения заданного интервала
-
-Использует стандартный конструктор описанный выше
-
-#### FireLimiter
-Пропускает как только наберётся нужно количество запросов
-
-Использует стандартный конструктор описанный выше
-
-#### Есть ли доступные запросы
-
-##### Первый аргумент
-Тип: `integer` или `float`
-
-Проверяет наличие запросов
-
-```javascript
-limit.accept(<Количество>); // -> boolean
-```
-#### Сброс достпных запрсов
-```javascript
-limit.reset();
+```js
+import { Limiter } from 'limit-io';
 ```
 
-### Геттеры
-#### getAmount
-Возвращает количество доступных запросов
-```javascript
-limit.getAmount(); // -> integer или float
+### Constructor
+Initializing a new instance
+
+```js
+const limiter = new Limiter(recoveryInterval, amount)
 ```
 
-#### getLimit
-Возвращает количество ограничений запрсов
-```javascript
-limit.getLimit(); // -> integer
+| Parameter         | Type   | Description                          |
+|-------------------|--------|--------------------------------------|
+| recoveryInterval  | string | [API ms](https://github.com/zeit/ms) |
+| amount            | number | Number of available requests         |
+
+### limit
+Returns the limit on the number of calls
+
+```js
+limiter.limit; // => number
 ```
 
-#### getTime
-Возвращает время в миллисекундах  переданных в конструктор
-```javascript
-limit.getTime(); // -> integer
+### amount
+Returns the number of available calls
+
+```js
+limiter.amount; // => number
 ```
 
-#### getLast
-Возвращает время в миллисекундах последнего запроса
-```javascript
-limit.getLast(); // -> integer
+### recoveryTime
+Returns the time to restore
+
+```js
+limiter.recoveryTime; // => number
 ```
 
-#### getRecoveryTime
-Возвращает время в миллисекундах для сброса интервала
-```javascript
-limit.getRecoveryTime(); // -> integer
+### recoveryInterval
+Returns the interval for the reset of requests
+
+```js
+limiter.recoveryInterval; // => number
 ```
+
+### accept
+Checks if there are enough calls to call
+
+```js
+limiter.accept(amount); // => boolean
+```
+
+| Parameter | Type   | Description                  |
+|-----------|--------|------------------------------|
+| amount    | number | Number of requests requested |
+
+### reset
+Clears the number of available calls
+
+```js
+limiter.reset();
+```
+
+## TimeoutLimiter
+
+Alias for [Limiter](#Limiter)
+
+## FireLimiter
+The difference from Limiter is that it will be called as soon as there is enough for the specified number of calls

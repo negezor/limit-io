@@ -2,14 +2,17 @@
     "name": "limit-io",
     "version": "1.0.5",
     "description": "Simple queries limiter",
-    "main": "index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+    "license": "MIT",
+    "author": {
+        "name": "Vladlen (Negezor)",
+        "email": "negezor@gmail.com"
     },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/negezor/limit-io.git"
     },
+    "homepage": "https://github.com/negezor/limit-io#readme",
+    "bugs": "https://github.com/negezor/limit-io/issues",
     "keywords": [
         "rate",
         "limiter",
@@ -19,10 +22,39 @@
         "simple",
         "queries"
     ],
-    "author": "https://vk.com/id195624402",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/negezor/limit-io/issues"
+    "files": [
+        "lib"
+    ],
+    "main": "lib/index",
+    "module": "lib/index.mjs",
+    "engines": {
+        "node": ">=8.0.0"
     },
-    "homepage": "https://github.com/negezor/limit-io#readme"
+    "devDependencies": {
+        "@babel/core": "^7.1.2",
+        "@babel/preset-env": "^7.1.0",
+        "babel-core": "^7.0.0-0",
+        "babel-jest": "^23.6.0",
+        "cross-env": "^5.2.0",
+        "eslint": "^5.6.1",
+        "eslint-config-airbnb-base": "^13.1.0",
+        "eslint-plugin-import": "^2.14.0",
+        "jest": "^23.6.0",
+        "rollup": "^0.66.2",
+        "rollup-plugin-babel": "^4.0.3",
+        "rollup-plugin-commonjs": "^9.1.8",
+        "rollup-plugin-json": "^3.1.0",
+        "rollup-plugin-node-resolve": "^3.4.0"
+    },
+    "dependencies": {
+        "ms": "^2.1.1"
+    },
+    "scripts": {
+        "prepare": "yarn run rollup:build && yarn run test",
+        "rollup:build": "cross-env NODE_ENV=production rollup -c",
+        "rollup:watch": "yarn run rollup:build -w",
+        "test": "yarn run test:jest && yarn run test:eslint",
+        "test:jest": "cross-env BABEL_ENV=test jest --config jest.config.json --no-cache",
+        "test:eslint": "eslint ./src --ext .mjs,.js --ignore-path .gitignore ."
+    }
 }
