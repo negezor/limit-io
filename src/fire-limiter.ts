@@ -1,4 +1,4 @@
-import { Limiter } from './limiter';
+import { TimeoutLimiter } from './timeout-limiter';
 
 import {
 	kLimit,
@@ -7,11 +7,11 @@ import {
 	kRecoveryInterval,
 } from './constants';
 
-export class FireLimiter extends Limiter {
+export class FireLimiter extends TimeoutLimiter {
 	/**
 	 * Returns the interval for the reset of requests
 	 */
-	get recoveryTime(): number {
+	public get recoveryTime(): number {
 		const { amount, limit, recoveryInterval } = this;
 
 		if (amount === limit) {
@@ -31,7 +31,7 @@ export class FireLimiter extends Limiter {
 	/**
 	 * Counts the number of requests
 	 */
-	conversionAmount() {
+	protected countAmount() {
 		const now = Date.now();
 
 		const limit = this[kLimit];
