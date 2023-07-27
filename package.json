@@ -1,6 +1,6 @@
 {
     "name": "limit-io",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "description": "Simple queries limiter",
     "license": "MIT",
     "author": {
@@ -26,16 +26,16 @@
     "files": [
         "lib"
     ],
-	"main": "./lib/index.js",
-	"types": "./lib/index.d.ts",
-	"exports": {
-		".": {
-			"types": "./lib/index.d.ts",
-			"import": "./lib/index.mjs",
-			"require": "./lib/index.js"
-		}
-	},
-	"sideEffects": false,
+    "main": "./lib/index.js",
+    "types": "./lib/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./lib/index.d.ts",
+            "import": "./lib/index.mjs",
+            "require": "./lib/index.js"
+        }
+    },
+    "sideEffects": false,
     "engines": {
         "node": ">=18.0.0"
     },
