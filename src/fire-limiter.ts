@@ -41,6 +41,6 @@ export class FireLimiter extends TimeoutLimiter {
 		difference += this[kAmount];
 
 		this[kRecoveryTime] = now;
-		this[kAmount] = Math.ceil(Math.min(difference, limit));
+		this[kAmount] = Math.floor(Math.min(difference, limit));
 	}
 }
