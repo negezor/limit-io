@@ -3,10 +3,8 @@
 <a href="https://www.npmjs.com/package/limit-io"><img src="https://img.shields.io/npm/v/limit-io.svg?style=flat-square" alt="NPM version"></a>
 <a href="https://github.com/negezor/limit-io/actions/workflows/tests.yml"><img src="https://img.shields.io/github/actions/workflow/status/negezor/limit-io/tests.yml?style=flat-square" alt="Build Status"></a>
 <a href="https://www.npmjs.com/package/limit-io"><img src="https://img.shields.io/npm/dt/limit-io.svg?style=flat-square" alt="NPM downloads"></a>
-<a href="https://www.codacy.com/app/negezor/limit-io"><img src="https://img.shields.io/codacy/grade/25ee36d46e6e498981a74f8b0653aacc.svg?style=flat-square" alt="Code quality"></a>
-</p>
 
-LIMIT-IO - This is a simple query limiter based on memory storage
+> LIMIT-IO - This is a simple query limiter based on memory storage
 
 ## Features
 - Two operating modes
@@ -14,36 +12,37 @@ LIMIT-IO - This is a simple query limiter based on memory storage
 - Simple
 
 ## Installation
-> **[Node.js](https://nodejs.org/) 18.0.0 or newer is required**  
+> **[Node.js](https://nodejs.org/) 18.0.0 or newer is required**
 
-### Yarn
-Recommended, auto assembly
-```shell
-$ yarn add limit-io
-```
-
-### NPM
-```shell
-$ npm i limit-io
-```
+- **Using `npm`** (recommended)
+	```shell
+	npm i limit-io
+	```
+- **Using `Yarn`**
+  ```shell
+  yarn add limit-io
+  ```
+- **Using `pnpm`**
+  ```shell
+  pnpm add limit-io
+  ```
 
 ## API Reference
 
-* [Limiter](#Limiter)
-	* [FireLimiter](#FireLimiter)
-	* [TimeoutLimiter](#TimeoutLimiter)
+* [TimeoutLimiter](#TimeoutLimiter)
+* [FireLimiter](#FireLimiter)
 
-## Limiter
+## TimeoutLimiter
 
 ```js
-import { Limiter } from 'limit-io';
+import { TimeoutLimiter } from 'limit-io';
 ```
 
 ### Constructor
 Initializing a new instance
 
 ```js
-const limiter = new Limiter(recoveryInterval, amount)
+const limiter = new TimeoutLimiter(recoveryInterval, amount)
 ```
 
 | Parameter         | Type   | Description                          |
@@ -96,10 +95,6 @@ Clears the number of available calls
 ```js
 limiter.reset();
 ```
-
-## TimeoutLimiter
-
-Alias for [Limiter](#Limiter)
 
 ## FireLimiter
 The difference from Limiter is that it will be called as soon as there is enough for the specified number of calls
