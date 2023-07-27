@@ -1,26 +1,21 @@
 import ms from 'ms';
 
-import nodeUtil from 'util';
+import { inspect } from 'node:util';
 
-import { symbols } from './utils/constants';
+import {
+	kLimit,
+	kAmount,
+	kRecoveryTime,
+	kRecoveryInterval,
+} from './constants';
 
-const { inspect } = nodeUtil;
+export class Limiter {
+    private [kLimit]: number;
+    private [kAmount]: number;
+    private [kRecoveryTime]: number;
+    private [kRecoveryInterval]: number;
 
-const {
-	LIMIT,
-	AMOUNT,
-	RECOVERY_TIME,
-	RECOVERY_INTERVAL
-} = symbols;
-
-export default class Limiter {
-	/**
-	 * Constructor
-	 *
-	 * @param {string} recoveryInterval
-	 * @param {number} amount
-	 */
-	constructor(recoveryInterval, amount) {
+	constructor(recoveryInterval: string, amount: number) {
 		if (typeof recoveryInterval !== 'string') {
 			throw new TypeError('RecoveryInterval should be string');
 		}
@@ -33,44 +28,38 @@ export default class Limiter {
 			throw new RangeError('Amount should be greater than 0');
 		}
 
-		this[LIMIT] = amount;
-		this[AMOUNT] = amount;
+		this[kLimit] = amount;
+		this[kAmount] = amount;
 
-		this[RECOVERY_TIME] = 0;
-		this[RECOVERY_INTERVAL] = ms(recoveryInterval);
+		this[kRecoveryTime] = 0;
+		this[kRecoveryInterval] = ms(recoveryInterval);
 	}
 
 	/**
 	 * Returns the limit on the number of calls
-	 *
-	 * @return {number}
 	 */
-	get limit() {
-		return this[LIMIT];
+	get limit(): number {
+		return this[kLimit];
 	}
 
 	/**
 	 * Returns the number of available calls
-	 *
-	 * @return {number}
 	 */
-	get amount() {
+	get amount(): number {
 		this.conversionAmount();
 
-		return this[AMOUNT];
+		return this[kAmount];
 	}
 
 	/**
 	 * Returns the time to restore
-	 *
-	 * @return {number}
 	 */
-	get recoveryTime() {
+	get recoveryTime(): number {
 		if (this.amount === this.limit) {
 			return 0;
 		}
 
-		const recoveryTime = this[RECOVERY_TIME] - Date.now();
+		const recoveryTime = this[kRecoveryTime] - Date.now();
 
 		return recoveryTime > 0
 			? recoveryTime
@@ -79,39 +68,31 @@ export default class Limiter {
 
 	/**
 	 * Returns the interval for the reset of requests
-	 *
-	 * @return {number}
 	 */
-	get recoveryInterval() {
-		return this[RECOVERY_INTERVAL];
+	get recoveryInterval(): number {
+		return this[kRecoveryInterval];
 	}
 
 	/**
 	 * Checks if there are enough calls to call
-	 *
-	 * @param {number} amount
-	 *
-	 * @return {boolean}
 	 */
-	accept(amount) {
+	accept(amount: number): boolean {
 		if (this.amount < amount) {
 			return false;
 		}
 
-		this[AMOUNT] -= amount;
+		this[kAmount] -= amount;
 
 		return true;
 	}
 
 	/**
 	 * Clears the number of available calls
-	 *
-	 * @return {this}
 	 */
-	reset() {
-		this[AMOUNT] = this[LIMIT];
+	reset(): this {
+		this[kAmount] = this[kLimit];
 
-		this[RECOVERY_TIME] = 0;
+		this[kRecoveryTime] = 0;
 
 		return this;
 	}
@@ -119,34 +100,30 @@ export default class Limiter {
 	/**
 	 * Counts the number of requests
 	 */
-	conversionAmount() {
+	protected conversionAmount() {
 		const now = Date.now();
 
-		if (this[RECOVERY_TIME] > now) {
+		if (this[kRecoveryTime] > now) {
 			return;
 		}
 
-		this[AMOUNT] = this[LIMIT];
+		this[kAmount] = this[kLimit];
 
-		this[RECOVERY_TIME] = now + this[RECOVERY_INTERVAL];
+		this[kRecoveryTime] = now + this[kRecoveryInterval];
 	}
 
 	/**
 	 * Custom inspect object
-	 *
-	 * @param {?number} depth
-	 * @param {Object}  options
-	 *
-	 * @return {string}
 	 */
-	[inspect.custom](depth, options) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	[inspect.custom](depth: number, options: Record<string, any> & { stylize: (name: string, color: 'special') => string}): string {
 		const { name } = this.constructor;
 
 		const {
 			limit,
 			amount,
 			recoveryTime,
-			recoveryInterval
+			recoveryInterval,
 		} = this;
 
 		const customData = {
@@ -155,17 +132,17 @@ export default class Limiter {
 			recoveryTime,
 			recoveryInterval,
 			'<recoveryTime>': ms(recoveryTime, {
-				long: true
+				long: true,
 			}),
 			'<recoveryInterval>': ms(recoveryInterval, {
-				long: true
-			})
+				long: true,
+			}),
 		};
 
 		const payload = inspect(customData, {
 			...options,
 
-			compact: false
+			compact: false,
 		});
 
 		return `${options.stylize(name, 'special')} ${payload}`;
