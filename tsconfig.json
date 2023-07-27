@@ -1,0 +1,11 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "node",
+		"declaration": true,
+		"sourceMap": false,
+		"strict": true,
+        "allowSyntheticDefaultImports": true,
+	}
+}

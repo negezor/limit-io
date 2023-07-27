@@ -1,41 +1,51 @@
-import json from 'rollup-plugin-json';
-import babel from 'rollup-plugin-babel';
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
+import typescript from 'rollup-plugin-typescript2';
+
+import { tmpdir } from 'node:os';
+import { builtinModules } from 'node:module';
+import { join as pathJoin } from 'node:path';
 
 import pkg from './package.json';
 
-const babelConfig = require('./babel.config');
+const cacheRoot = pathJoin(tmpdir(), '.rpt2_cache');
 
-export default [
-	{
-		input: 'src/index.mjs',
-		external: [
-			...Object.keys(pkg.dependencies),
-			'util'
-		],
-		plugins: [
-			json(),
-			resolve({
-				preferBuiltins: true,
-			}),
-			babel({
-				...babelConfig,
+const CORE_MODULE_RE = /(^_|\/)/;
+const coreModules = builtinModules.filter(name => (
+	!CORE_MODULE_RE.test(name)
+));
 
-				babelrc: false
-			}),
-			commonjs()
-		],
-		output: [
-			{
-				file: `${pkg.main}.js`,
-				format: 'cjs',
-				exports: 'named'
+const src = pathJoin(__dirname, 'src');
+const lib = pathJoin(__dirname, 'lib');
+
+// eslint-disable-next-line import/no-default-export
+export default {
+	input: pathJoin(src, 'index.ts'),
+	plugins: [
+		typescript({
+			cacheRoot,
+
+			declarationDir: lib,
+
+			tsconfigOverride: {
+				outDir: lib,
+				rootDir: src,
+				include: [src],
 			},
-			{
-				file: `${pkg.main}.mjs`,
-				format: 'esm'
-			}
-		]
-	}
-];
+		}),
+	],
+	external: [
+		...Object.keys(pkg.dependencies || {}),
+		...Object.keys(pkg.peerDependencies || {}),
+		...coreModules,
+	],
+	output: [
+		{
+			file: pathJoin(lib, 'index.js'),
+			format: 'cjs',
+			exports: 'named',
+		},
+		{
+			file: pathJoin(lib, 'index.mjs'),
+			format: 'esm',
+		},
+	],
+};
