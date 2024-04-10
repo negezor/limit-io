@@ -115,7 +115,6 @@ export class TimeoutLimiter {
 	/**
 	 * Custom inspect object
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	[inspect.custom](depth: number, options: Record<string, any> & { stylize: (name: string, color: 'special') => string}): string {
 		const { name } = this.constructor;
 
