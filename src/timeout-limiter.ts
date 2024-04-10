@@ -1,6 +1,6 @@
 import ms from 'ms';
 
-import { inspect } from 'node:util';
+import { inspect, type InspectOptionsStylized } from 'node:util';
 
 import {
 	kLimit,
@@ -115,7 +115,7 @@ export class TimeoutLimiter {
 	/**
 	 * Custom inspect object
 	 */
-	[inspect.custom](depth: number, options: Record<string, any> & { stylize: (name: string, color: 'special') => string}): string {
+	[inspect.custom](depth: number, options: InspectOptionsStylized): string {
 		const { name } = this.constructor;
 
 		const {
