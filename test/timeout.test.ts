@@ -1,25 +1,28 @@
+import { describe, it } from 'node:test';
+import { strictEqual } from 'node:assert';
+
 import { TimeoutLimiter } from '..';
 
 describe('TimeoutLimiter', () => {
 	it('check accept', () => {
         const limiter = new TimeoutLimiter('1m', 3);
 
-        expect(limiter.amount).toEqual(3);
+        strictEqual(limiter.amount, 3);
 
-        expect(limiter.accept(1)).toEqual(true);
+        strictEqual(limiter.accept(1), true);
 
-        expect(limiter.amount).toEqual(2);
+        strictEqual(limiter.amount, 2);
 
-        expect(limiter.accept(1)).toEqual(true);
+        strictEqual(limiter.accept(1), true);
 
-        expect(limiter.amount).toEqual(1);
+        strictEqual(limiter.amount, 1);
 
-        expect(limiter.accept(1)).toEqual(true);
+        strictEqual(limiter.accept(1), true);
 
-        expect(limiter.amount).toEqual(0);
+        strictEqual(limiter.amount, 0);
 
-        expect(limiter.accept(1)).toEqual(false);
+        strictEqual(limiter.accept(1), false);
 
-        expect(limiter.amount).toEqual(0);
+        strictEqual(limiter.amount, 0);
 	});
 });
